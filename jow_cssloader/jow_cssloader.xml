@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="system" method="upgrade">
+	<name>PLG_SYSTEM_JOW_CSSLOADER</name>
+	<author>JowWow</author>
+	<authorEmail>troy@jowwow.net</authorEmail>
+	<authorUrl>http://jowwow.me</authorUrl>
+	<creationDate>November 2013</creationDate>
+	<copyright>Copyright (C) 2012-2014 - JowWow All rights reserved.</copyright>
+	<license>GNU General Public License</license>
+	<version>2.1</version>
+	<description>PLG_SYSTEM_JOW_CSSLOADER_XML_DESCRIPTION</description>
+
+	<updateservers>
+		<server type="plugin" priority="1" name="JowWow CSS Loader"><![CDATA[http://jowwow.me/index.php?option=com_ars&view=update&task=stream&format=xml&id=1&dummy=extension.xml]]></server>
+	</updateservers>
+
+
+	<files>
+		<filename plugin="jow_cssloader">jow_cssloader.php</filename>
+		<filename>index.html</filename>
+		<filename>LICENSE.txt</filename>
+    	<folder>fields</folder>
+		<folder>language</folder>
+	</files>
+
+	<languages>
+		<language tag="en-GB">/language/en-GB/en-GB.plg_system_jow_cssloader.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_system_jow_cssloader.sys.ini</language>
+	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/plugins/system/jow_cssloader/fields">
+
+				<field name="useUrl" type="url"
+					filter="url"
+					validate = "url"
+					scheme = "http,https"
+					description="PLG_SYSTEM_JOW_CSSLOADER_URL_DESC"
+					label="PLG_SYSTEM_JOW_CSSLOADER_URL_LABEL"/>
+
+	            <field name="useFolder" type="text"
+					description="PLG_SYSTEM_JOW_CSSLOADER_FOLDER_DESC"
+					label="PLG_SYSTEM_JOW_CSSLOADER_FOLDER_LABEL"/>
+
+				<field name="useFile" type="CssList"
+                    default="custom.css"
+					hide_default="true"
+					description="PLG_SYSTEM_JOW_CSSLOADER_FILE_DESC"
+					label="PLG_SYSTEM_JOW_CSSLOADER_FILE_LABEL"/>
+
+			</fieldset>
+
+			<fieldset name="advanced">
+				<field name="showErrors" type="radio"
+					default="0"
+					label="PLG_SYSTEM_JOW_CSSLOADER_ENABLE_SHOW_ERRORS_LABEL"
+					description="PLG_SYSTEM_JOW_CSSLOADER_ENABLE_SHOW_ERRORS_DESC"
+					filter="bool">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+			</fieldset>
+
+		</fields>
+
+	</config>
+</extension>
