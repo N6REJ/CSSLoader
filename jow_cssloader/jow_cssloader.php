@@ -18,20 +18,19 @@ jimport('joomla.filesystem.file');
 class plgSystemJow_CssLoader extends JPlugin {
 
 	// Check for valid url
-	public function getURL($showErrors) {
-
+	public function getURL() {
+		// Lets get the pieces of the framework we need.
+		$document = JFactory::getDocument();
+		
 		// what url is requested?
 		$url = $this->params->get('useUrl');
 
 		// If its blank just return empty
 		if (!$url) {
 			return NULL;
-		} elseif (!substr($url, -4 === '.css')) { // makes sure its only asking for a .css & not blank
-
-			if ($showErrors) {
+		} elseif (!substr($url, -4 == '.css')) { // makes sure its only asking for a .css & not blank
 				$this->loadLanguage();
 				JFactory::getApplication()->enqueueMessage(JText::sprintf('PLG_SYSTEM_JOW_CSSLOADER_ERROR_URL', $url), 'error');
-			}
 			return NULL;
 		}
 
@@ -47,30 +46,33 @@ class plgSystemJow_CssLoader extends JPlugin {
 		// Michael Comment - Is this being used?  PhpStorm inspector shows $body unused
 		$body = file_get_contents($url, NULL, stream_context_create($options));
 
-		// Get response code.  Will return 200 if succesful
+		// Get response code.  Will return 200 if successful
 		sscanf($http_response_header[0], 'HTTP/%*d.%*d %d', $code);
 		// Since it is valid Lets see if it exists
 		if ($code !== 200) {
-			// Only Display validation Error if showErrors is activa
-			if ($showErrors) {
 				$this->loadLanguage();
-				JFactory::getApplication()->enqueueMessage(JText::sprintf('PLG_SYSTEM_JOW_CSSLOADER_ERROR_MISSING', $url),'error');
-			}
+				JFactory::getApplication()->enqueueMessage(JText::sprintf('PLG_SYSTEM_JOW_CSSLOADER_ERROR_MISSING_FILE', $url),'error');
 			return NULL;
 		}
 		// Must be fine
-		return $url;
+			$document->addStyleSheet($url);
+		return;
 	}
 
 	// get single css file
 	public function getFile() {
+		// Lets get the pieces of the framework we need.
+		$document = JFactory::getDocument();
 		// what file is requested?
 		$useFile = $this->params->get('useFile');
 		if ($useFile == '-1') {
 			return NULL;
 		}
-		// use selected css file
-		return $useFile;
+		// add file if one is found
+		if (!is_null($useFile)) {
+			$document->addStyleSheet($useFile);
+		return;
+		}
 	}
 
 	// get all css files in specified folder
@@ -80,17 +82,23 @@ class plgSystemJow_CssLoader extends JPlugin {
 
 		// what folder should we use?
 		$useFolder = $this->params->get('useFolder');
-		$dirname = dirname(JPATH_ROOT);
 		// If nothing there then who cares
 		if ($useFolder == '') {
 			return;
 		}
-		
+		 // ADDED THIS RIGHT HERE Make sure the requested path actually exists
+		if (!is_dir(JPATH_ROOT . '/' . $useFolder)) {
+			// dir doesn't exist so throw the error
+			$this->loadLanguage();
+			JFactory::getApplication()->enqueueMessage(JText::sprintf('PLG_SYSTEM_JOW_CSSLOADER_ERROR_MISSING_FOLDER', $useFolder),'error');
+			return;
+		}
 		// Get a list of files in the search path with the given filter.
 		foreach (JFolder::files(JPath::clean(JPATH_ROOT . '/' . $useFolder), 'css', FALSE, TRUE) as $file) {
-			$file = JPATH::clean(str_replace($dirname, '', $file) , '/' );
+			$file = trim(JPath::clean(str_replace(JPATH_ROOT, '', $file) , '/' ), '/');
 				$document->addStyleSheet($file);
 			}
+		
 	}
 
 	public function onBeforeRender() {
@@ -101,25 +109,14 @@ class plgSystemJow_CssLoader extends JPlugin {
 		if ($app->isSite()) {
 			// Get preset values.
 			$document = JFactory::getDocument();
-			$showErrors = $this->params->get('showErrors');
 
 			// call URL method
-			$url = $this->getURL($showErrors);
-			// add url if one is found
-			if (!is_null($url)) {
-				$document->addStyleSheet($url);
-			}
+			$url = $this->getURL();
 
 			// Check for single file
-			$useFile = $this->getFile($showErrors);
-			var_dump($useFile);
-			// add file if one is found
-			if (!is_null($useFile)) {
-				$document->addStyleSheet($useFile);
-			}
+			$useFile = $this->getFile();
 
 			// Check for Folder
-			// @TODO must use for each to go through each .css present.
 			$this->getFolder();
 		}
 	}
